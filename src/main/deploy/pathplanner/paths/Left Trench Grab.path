@@ -1,0 +1,145 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.429495033112583,
+        "y": 7.396349337748344
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.510737811901285,
+        "y": 7.396349337748344
+      },
+      "isLocked": false,
+      "linkedName": "Left Trench"
+    },
+    {
+      "anchor": {
+        "x": 7.473819691577701,
+        "y": 6.880806642941875
+      },
+      "prevControl": {
+        "x": 7.134230967138809,
+        "y": 7.606130119095317
+      },
+      "nextControl": {
+        "x": 7.721027777957252,
+        "y": 6.352797861606963
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.473819691577701,
+        "y": 5.073262158956108
+      },
+      "prevControl": {
+        "x": 7.889988648236747,
+        "y": 5.531192769830233
+      },
+      "nextControl": {
+        "x": 6.737393137287387,
+        "y": 4.262936793562808
+      },
+      "isLocked": false,
+      "linkedName": "Neutral-Left"
+    },
+    {
+      "anchor": {
+        "x": 4.633392645314355,
+        "y": 5.568
+      },
+      "prevControl": {
+        "x": 5.62329690631361,
+        "y": 5.568
+      },
+      "nextControl": {
+        "x": 3.8130572513398504,
+        "y": 5.568
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.6650652431791224,
+        "y": 5.568185053380782
+      },
+      "prevControl": {
+        "x": 4.238065243179124,
+        "y": 5.568185053380782
+      },
+      "nextControl": {
+        "x": 3.092065243179121,
+        "y": 5.568185053380782
+      },
+      "isLocked": false,
+      "linkedName": "Left Bump Start"
+    },
+    {
+      "anchor": {
+        "x": 2.977508278145695,
+        "y": 5.568185053380782
+      },
+      "prevControl": {
+        "x": 3.258361232631332,
+        "y": 5.568185053380782
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "bump",
+      "minWaypointRelativePos": 2.6434195725534426,
+      "maxWaypointRelativePos": 3.543307086614157,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 0.8,
+        "maxAngularVelocity": 30.0,
+        "maxAngularAcceleration": 20.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "april tag",
+      "minWaypointRelativePos": 2.0918727915195143,
+      "maxWaypointRelativePos": 2.5441696113074204,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 50.0,
+        "maxAngularAcceleration": 30.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 70.0,
+    "maxAngularAcceleration": 40.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Left Trench Auto",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

@@ -1,0 +1,43 @@
+{
+  "robotWidth": 0.85725,
+  "robotLength": 0.85725,
+  "holonomicMode": false,
+  "pathFolders": [
+    "Depot",
+    "Left Bump Auto",
+    "Left Trench Auto",
+    "Right Bump Auto",
+    "Outpost",
+    "Right Trench Auto"
+  ],
+  "autoFolders": [
+    "Optimized Autos"
+  ],
+  "defaultMaxVel": 2.0,
+  "defaultMaxAccel": 1.5,
+  "defaultMaxAngVel": 100.0,
+  "defaultMaxAngAccel": 50.0,
+  "defaultNominalVoltage": 12.0,
+  "robotMass": 29.257,
+  "robotMOI": 4.0,
+  "robotTrackwidth": 0.546,
+  "driveWheelRadius": 0.0762,
+  "driveGearing": 8.46,
+  "maxDriveSpeed": 4.572,
+  "driveMotorType": "CIM",
+  "driveCurrentLimit": 40.0,
+  "wheelCOF": 1.2,
+  "flModuleX": 0.273,
+  "flModuleY": 0.273,
+  "frModuleX": 0.273,
+  "frModuleY": -0.273,
+  "blModuleX": -0.273,
+  "blModuleY": 0.273,
+  "brModuleX": -0.273,
+  "brModuleY": -0.273,
+  "bumperOffsetX": 0.0,
+  "bumperOffsetY": 0.0,
+  "robotFeatures": [
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.38,\"y\":0.0},\"size\":{\"width\":0.4,\"length\":0.1},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":false}}"
+  ]
+}
