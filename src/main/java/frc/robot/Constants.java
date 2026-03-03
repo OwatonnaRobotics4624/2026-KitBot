@@ -33,20 +33,32 @@ public final class Constants {
     public static final double DEFAULT_ROBOT_SPEED = .9;
 
     public static final double SLOW_SPEED_SCALE = .7;
+
+    public static final class OdometryConstants {
+      public static final double TRACK_WIDTH_METERS = 0.546;
+      
+    }
   }
 
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    public static final int INTAKE_MOTOR_ID = 8;
-    public static final int FEEDER_MOTOR_ID = 6;
-    public static final int LAUNCHER_MOTOR_ID = 5;
+    public static final class CanIds {
+      public static final int INTAKE_MOTOR_ID = 8;
+      public static final int FEEDER_MOTOR_ID = 6;
+      public static final int LAUNCHER_MOTOR_ID = 5;
+    }
+
+    public static final class CurrentLimits{
+      // Current limit and nominal voltage for fuel mechanism motors.
+      public static final int FEEDER_MOTOR_CURRENT_LIMIT = 30;
+      public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
+      public static final int INTAKE_MOTOR_CURRENT_LIMIT = 30;
+    }
+    
 
     
 
-    // Current limit and nominal voltage for fuel mechanism motors.
-    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 30;
-    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
-    public static final int INTAKE_MOTOR_CURRENT_LIMIT = 30;
+    
 
 
 
@@ -55,33 +67,27 @@ public final class Constants {
     // See the Software Guide for tuning information
     public static final double INTAKING_FEEDER_VOLTAGE = 6;
     public static final double INTAKING_INTAKE_VOLTAGE = -6;
-    //public static final double INTAKING_LAUNCHER_VOLTAGE = -0;
     public static final double LAUNCHING_INTAKE_VOLTAGE = -6;
     public static final double LAUNCHING_FEEDER_VOLTAGE = -7;
-    //public static final double LAUNCHING_LAUNCHER_VOLTAGE = 6;
-
-
-
 
     public static final double LAUNCHING_LAUNCHER_RPM = 2300; //Original: 2300
-    public static final double SLOW_LAUNCHING_LAUNCHER_RPM = 2300;
+    public static final double SLOW_LAUNCHING_LAUNCHER_RPM = 2100;
+    public static final double INTAKING_LAUNCHER_RPM = 0;
 
-
-    public static final double SLOW_LAUNCHING_LAUNCHER_VOLTAGE = 9.6;
     public static final double SPIN_UP_FEEDER_VOLTAGE = 1;
     public static final double SPIN_UP_SECONDS = 0.4;
 
-    public static final double LAUNCHER_kP = 0.00025;
-    public static final double LAUNCHER_kI = 0.0;
-    public static final double LAUNCHER_kD = 0.00015;
+    public static final class LauncherConstants{
+      public static final double LAUNCHER_kP = 0.00025;
+      public static final double LAUNCHER_kI = 0.0;
+      public static final double LAUNCHER_kD = 0.00015;
 
-    public static final double LAUNCHER_kMinOutput = -1;
-    public static final double LAUNCHER_kMaxOutput = 1;
+      public static final double LAUNCHER_kMinOutput = -1;
+      public static final double LAUNCHER_kMaxOutput = 1;
 
-    public static final double LAUNCHER_MIN_RPM = -6000;
-    public static final double LAUNCHER_MAX_RPM = 6000;
-
-    public static final double INTAKING_LAUNCHER_RPM = 0;
+      public static final double LAUNCHER_MIN_RPM = -6000;
+      public static final double LAUNCHER_MAX_RPM = 6000;
+    }
 
   }
 

@@ -40,9 +40,9 @@ public class Drive extends Command {
   // controllable.
   @Override
   public void execute() {
-    
+    double scale = SmartDashboard.getNumber("Slow speed scale", SLOW_SPEED_SCALE);
     double slowScaling = 1 - controller.getLeftTriggerAxis();
-    slowScaling = slowScaling*(SmartDashboard.getNumber("Slow speed scale", SLOW_SPEED_SCALE)) +SmartDashboard.getNumber("Slow speed scale", SLOW_SPEED_SCALE);
+    slowScaling = slowScaling*(scale) +scale;
     //System.out.println(slowScaling);
     driveSubsystem.driveArcade(-controller.getLeftY() * DRIVE_SCALING * slowScaling, -controller.getRightX() * ROTATION_SCALING * slowScaling);
   }

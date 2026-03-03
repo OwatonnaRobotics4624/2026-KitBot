@@ -36,9 +36,9 @@ public class CANFuelSubsystem extends SubsystemBase {
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushless motors for each of the motors on the launcher mechanism
-    launcherRoller = new SparkFlex(LAUNCHER_MOTOR_ID, MotorType.kBrushless);
-    intakeRoller = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
-    feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
+    launcherRoller = new SparkFlex(CanIds.LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+    intakeRoller = new SparkMax(CanIds.INTAKE_MOTOR_ID, MotorType.kBrushless);
+    feederRoller = new SparkMax(CanIds.FEEDER_MOTOR_ID, MotorType.kBrushless);
 
     launcherController = launcherRoller.getClosedLoopController();
 
@@ -47,7 +47,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
     SparkMaxConfig feederConfig = new SparkMaxConfig();
-    feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
+    feederConfig.smartCurrentLimit(CurrentLimits.FEEDER_MOTOR_CURRENT_LIMIT);
     feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // create the configuration for the launcher roller, set a current limit, set
@@ -57,16 +57,16 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.inverted(true);
     //launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     launcherConfig.closedLoop
-    .p(LAUNCHER_kP)
-    .i(LAUNCHER_kI)
-    .d(LAUNCHER_kD)
-    .outputRange(LAUNCHER_kMinOutput, LAUNCHER_kMaxOutput);
+    .p(LauncherConstants.LAUNCHER_kP)
+    .i(LauncherConstants.LAUNCHER_kI)
+    .d(LauncherConstants.LAUNCHER_kD)
+    .outputRange(LauncherConstants.LAUNCHER_kMinOutput, LauncherConstants.LAUNCHER_kMaxOutput);
     
     launcherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // create the configuration for the intake roller, set a current limit
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
-    intakeConfig.smartCurrentLimit(INTAKE_MOTOR_CURRENT_LIMIT);
+    intakeConfig.smartCurrentLimit(CurrentLimits.INTAKE_MOTOR_CURRENT_LIMIT);
     intakeConfig.inverted(true);
     intakeConfig.idleMode(IdleMode.kCoast);
     intakeRoller.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -77,13 +77,9 @@ public class CANFuelSubsystem extends SubsystemBase {
     // with your new values. For more information, see the Software Guide.
     SmartDashboard.putNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE);
-    //SmartDashboard.putNumber("Intaking launcher roller value", INTAKING_LAUNCHER_VOLTAGE);
     SmartDashboard.putNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE);
-    //SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE);
     SmartDashboard.putNumber("Launching intake roller value", LAUNCHING_INTAKE_VOLTAGE);
-    //SmartDashboard.putNumber("Slow Launching launcher roller value", SLOW_LAUNCHING_LAUNCHER_VOLTAGE);
     SmartDashboard.putNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE);
-
     SmartDashboard.putNumber("Launching launcher roller RPM", LAUNCHING_LAUNCHER_RPM);
     SmartDashboard.putNumber("Slow Launching launcher roller RPM", SLOW_LAUNCHING_LAUNCHER_RPM);
     launcherVelocity = 0;
@@ -92,8 +88,8 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the ---->RPM<---- of the launcher roller NOT VOLTAGE
   public void setLauncherRollerRPM(double RPM) {
-    launcherVelocity = MathUtil.clamp(RPM, LAUNCHER_MIN_RPM, LAUNCHER_MAX_RPM);
-    launcherController.setSetpoint(MathUtil.clamp(launcherVelocity*2,LAUNCHER_MIN_RPM, LAUNCHER_MAX_RPM), ControlType.kVelocity);
+    launcherVelocity = MathUtil.clamp(RPM, LauncherConstants.LAUNCHER_MIN_RPM, LauncherConstants.LAUNCHER_MAX_RPM);
+    launcherController.setSetpoint(MathUtil.clamp(launcherVelocity*2,LauncherConstants.LAUNCHER_MIN_RPM, LauncherConstants.LAUNCHER_MAX_RPM), ControlType.kVelocity);
   }
 
   public boolean getLauncherAtSetpoint() {
@@ -136,8 +132,5 @@ public class CANFuelSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Flywheel Actual Speed", getLauncherVelocity());
-    //System.out.println(launcherRoller.getEncoder().getVelocity());
-    //System.out.println(getLauncherAtVelocity());
-    // This method will be called once per scheduler run
   }
 }

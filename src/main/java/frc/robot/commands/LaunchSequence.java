@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
@@ -22,5 +24,23 @@ public class LaunchSequence extends SequentialCommandGroup {
         new SpinUp(fuelSubsystem).until(fuelSubsystem::getLauncherAtVelocity),
         new WaitCommand(Constants.FuelConstants.SPIN_UP_SECONDS),
         new Launch(fuelSubsystem));
+  }
+
+  public LaunchSequence(CANFuelSubsystem fuelSubsystem, double rpm) {
+    // Add your commands in the addCommands() call, e.g.
+    // addCommands(new FooCommand(), new BarCommand());
+    addCommands(
+        new SpinUp(fuelSubsystem, rpm).until(fuelSubsystem::getLauncherAtVelocity),
+        new WaitCommand(Constants.FuelConstants.SPIN_UP_SECONDS),
+        new Launch(fuelSubsystem, rpm));
+  }
+
+    public LaunchSequence(CANFuelSubsystem fuelSubsystem, DoubleSupplier rpm) {
+    // Add your commands in the addCommands() call, e.g.
+    // addCommands(new FooCommand(), new BarCommand());
+    addCommands(
+        new SpinUp(fuelSubsystem, rpm).until(fuelSubsystem::getLauncherAtVelocity),
+        new WaitCommand(Constants.FuelConstants.SPIN_UP_SECONDS),
+        new Launch(fuelSubsystem, rpm));
   }
 }
