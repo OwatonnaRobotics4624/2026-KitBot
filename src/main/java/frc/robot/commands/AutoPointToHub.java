@@ -4,28 +4,24 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.CANDriveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetFlywheelSpeed extends Command {
-  CANFuelSubsystem m_FuelSubsystem;
-  double m_Rpm;
-  /** Creates a new SetFlywheelSpeed. */
-  public SetFlywheelSpeed(CANFuelSubsystem fuelSubsystem, DoubleSupplier Rpm) {
-    m_FuelSubsystem = fuelSubsystem;
-    m_Rpm = Rpm.getAsDouble();
-    addRequirements(fuelSubsystem);
+public class AutoPointToHub extends Command {
+
+  private final CANDriveSubsystem m_driveSubsystem;
+
+  /** Creates a new AutoPointToHub. */
+  public AutoPointToHub(CANDriveSubsystem driveSubsystem) {
+    m_driveSubsystem = driveSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(m_driveSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    m_FuelSubsystem.setLauncherRollerRPM(m_Rpm);
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -33,9 +29,7 @@ public class SetFlywheelSpeed extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    m_FuelSubsystem.stopLauncher();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import static frc.robot.Constants.FuelConstants.SLOW_LAUNCHING_LAUNCHER_RPM;
 import static frc.robot.Constants.OperatorConstants.*;
 
 import com.pathplanner.lib.auto.NamedCommands;
@@ -22,8 +24,7 @@ import frc.robot.commands.Eject;
 import frc.robot.commands.Intake;
 import frc.robot.commands.Jogger;
 import frc.robot.commands.LaunchSequence;
-import frc.robot.commands.SetFlywheelSpeed;
-import frc.robot.commands.SlowLaunchSequence;
+import frc.robot.commands.SpinUpFlywheel;
 import frc.robot.commands.StopFuelSystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -104,19 +105,10 @@ public class RobotContainer {
     //While the B button is held on the operator controller, joggle the fuel back into the hopper
     operatorController.b().whileTrue(new Jogger(fuelSubsystem));
     //While the Right Trigger is held on the operator controller, the shooter slowly shoots the ball 
-    operatorController.rightTrigger().whileTrue(new SlowLaunchSequence(fuelSubsystem));
-    /* 
-    operatorController.y().onTrue(new InstantCommand(() -> 
-      driveSubsystem.resetPosition(
-        driveSubsystem.gyroRotation2d(),
-        Distance.ofBaseUnits(0, Units.Meter),
-        Distance.ofBaseUnits(0, Units.Meter),
-        new Pose2d(
-          Distance.ofBaseUnits(0, Units.Meter),
-          Distance.ofBaseUnits(0, Units.Meter),
-          new Rotation2d(0))),
-      driveSubsystem).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    */
+    operatorController.rightTrigger().whileTrue(new LaunchSequence(
+      fuelSubsystem,
+      SmartDashboard.getNumber("Slow Launching launcher roller RPM", SLOW_LAUNCHING_LAUNCHER_RPM)));
+
     operatorController.y().onTrue(new InstantCommand(() -> driveSubsystem.resetYaw()));
 
 
@@ -149,7 +141,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Normal Jogger", new Jogger(fuelSubsystem));
     //NamedCommands.registerCommand("Normal Jogger", new Jogger(fuelSubsystem));
     NamedCommands.registerCommand("Stop Fuel Subsystem", new StopFuelSystem(fuelSubsystem));
-    NamedCommands.registerCommand("Pre-speed up flywheel", new SetFlywheelSpeed(fuelSubsystem, () -> Constants.FuelConstants.LAUNCHING_LAUNCHER_RPM));
+    NamedCommands.registerCommand("Pre-speed up flywheel", new SpinUpFlywheel(fuelSubsystem, () -> Constants.FuelConstants.LAUNCHING_LAUNCHER_RPM));
   }
 
   /**
