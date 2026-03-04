@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.FuelConstants.*;
 
-import java.util.function.BooleanSupplier;
+//import java.util.function.BooleanSupplier;
 
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
