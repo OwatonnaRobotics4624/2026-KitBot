@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import com.ctre.phoenix6.SignalLogger;
+//import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -41,12 +41,12 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    SignalLogger.stop();
+    //SignalLogger.stop();
     // Used to track usage of Kitbot code, please do not remove.
     //HAL.report(tResourceType.kResourceType_Framework, 10);
 
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(1280, 720);
+    //UsbCamera camera = CameraServer.startAutomaticCapture();
+    //camera.setResolution(1280, 720);
   }
 
   /**

@@ -28,14 +28,17 @@ public final class Constants {
 
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
 
     public static final double DEFAULT_ROBOT_SPEED = .9;
+
 
     public static final double SLOW_SPEED_SCALE = .7;
 
     public static final class OdometryConstants {
       public static final double TRACK_WIDTH_METERS = 0.546;
+      public static final double DRIVE_GEAR_RATIO = 1/8.46;
+      public static final double DRIVE_WHEEL_CIRCUMFERENCE = 18.8495559215;
       
     }
   }
@@ -75,7 +78,7 @@ public final class Constants {
     public static final double INTAKING_LAUNCHER_RPM = 0;
 
     public static final double SPIN_UP_FEEDER_VOLTAGE = 1;
-    public static final double SPIN_UP_SECONDS = 0.4;
+    public static final double SPIN_UP_SECONDS = 0.2;
 
     public static final class LauncherConstants{
       public static final double LAUNCHER_kP = 0.00025;

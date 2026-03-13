@@ -6,10 +6,12 @@ package frc.robot.subsystems;
 
 //import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.PersistMode; // use as its not depracated
+import com.revrobotics.RelativeEncoder;
 //import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.ResetMode; // use as its not depracated
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -40,9 +42,11 @@ import frc.robot.LimelightHelpers;
 import static frc.robot.Constants.DriveConstants.*;
 
 import java.nio.Buffer;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.encoder.config.*;
 
 public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax leftLeader;
@@ -57,8 +61,11 @@ public class CANDriveSubsystem extends SubsystemBase {
   private SparkMaxConfig leftDriveFollowerConfig;
   private SparkMaxConfig rightDriveFollowerConfig;
   
-  private Encoder m_leftEncoder;
-  private Encoder m_rightEncoder;
+  private EncoderConfig m_leftEncoderConfig;
+  private EncoderConfig m_rightEncoderConfig;
+
+  private RelativeEncoder m_leftEncoder;
+  private RelativeEncoder m_rightEncoder;
 
   //private DifferentialDriveOdometry m_odometry;
 
@@ -82,12 +89,12 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     
     // create brushed motors for drive
-    leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushed);
-    leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushed);
-    rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushed);
-    rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushed);
+    leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
+    leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
+    rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
+    rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
 
-   
+    
 
     //Accesses Smart Dashboard and Sets Initial Robot Speed
     SmartDashboard.putNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);
@@ -125,11 +132,27 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftDriveFollowerConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
     rightDriveFollowerConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
 
+    m_leftEncoderConfig = new EncoderConfig();
+    m_rightEncoderConfig = new EncoderConfig();
+
+    m_leftEncoderConfig.positionConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
+    m_rightEncoderConfig.positionConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
+
+    m_leftEncoderConfig.velocityConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
+    m_rightEncoderConfig.velocityConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
+
+    leftDriveLeaderConfig.encoder.apply(m_leftEncoderConfig);
+    rightDriveLeaderConfig.encoder.apply(m_rightEncoderConfig);
+    leftDriveFollowerConfig.encoder.apply(m_leftEncoderConfig);
+    rightDriveFollowerConfig.encoder.apply(m_rightEncoderConfig);
+    
+
     //left follower (inverted, on coast)
     leftDriveFollowerConfig.follow(leftLeader);
     leftDriveFollowerConfig.inverted(true);
     leftDriveFollowerConfig.idleMode(IdleMode.kCoast);
     leftFollower.configure(leftDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
 
     //right follower (not inverted, on coast)
     rightDriveFollowerConfig.follow(rightLeader);
@@ -149,25 +172,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     m_gyro = new Pigeon2(GYRO_CAN_ID);
     
-    m_leftEncoder = new Encoder(0, 1, true, EncodingType.k4X);
-    m_rightEncoder = new Encoder(2, 3, false, EncodingType.k4X);
-
-    m_leftEncoder.setDistancePerPulse((1/40.0)/8.46);
-    m_rightEncoder.setDistancePerPulse((1/40.0)/8.46);
-
-
-    // Creating my odometry object. Here,
-    // // our starting pose is 5 meters along the long end of the field and in the
-    // // center of the field along the short end, facing forward.
-    // m_odometry = new DifferentialDriveOdometry(
-    //   m_gyro.getRotation2d(),
-    //   m_leftEncoder.getDistance(), m_rightEncoder.getDistance(),
-    //   new Pose2d( 1, 6, new Rotation2d()));
-    
+    m_leftEncoder = leftLeader.getEncoder();
+    m_rightEncoder = rightLeader.getEncoder();
 
     field2d = new Field2d();  
-
-
 
     // Creating my kinematics object: track width of 55 cm
     m_kinematics = new DifferentialDriveKinematics(0.546);
@@ -183,8 +191,8 @@ public class CANDriveSubsystem extends SubsystemBase {
       new DifferentialDrivePoseEstimator(
           m_kinematics,
           m_gyro.getRotation2d(),
-          m_leftEncoder.getDistance(),
-          m_rightEncoder.getDistance(),
+          m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
+          m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
           new Pose2d(),
           VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
           VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(30)));
@@ -310,7 +318,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updatePoseEstimator() {
     m_poseEstimator.update(
-      m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+      m_gyro.getRotation2d(), m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE, m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
   }
 
   private void updateOdometry(){
@@ -325,8 +333,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updateKinematics(){
     wheelSpeeds = new DifferentialDriveWheelSpeeds(
-      m_leftEncoder.getRate(),
-      m_rightEncoder.getRate()
+      m_leftEncoder.getVelocity(),
+      m_rightEncoder.getVelocity()
     );
     // Convert to chassis speeds.
     chassisSpeeds = m_kinematics.toChassisSpeeds(wheelSpeeds);
@@ -387,7 +395,16 @@ public class CANDriveSubsystem extends SubsystemBase {
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
-    double smartSpeed = SmartDashboard.getNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);
+    driveArcade(xSpeed,zRotation,false);
+    
+  }
+
+  public void driveArcade(double xSpeed, double zRotation, BooleanSupplier driveAtMax) {
+    driveArcade(xSpeed,zRotation,driveAtMax.getAsBoolean());
+  }
+
+  public void driveArcade(double xSpeed, double zRotation, boolean driveAtMax) {
+    double smartSpeed = (driveAtMax) ? 1 : SmartDashboard.getNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);;
     if (smartSpeed < 0){
       smartSpeed = 0;
       SmartDashboard.putNumber("Robot Speed", smartSpeed);
@@ -399,6 +416,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     
     drive.arcadeDrive(xSpeed * smartSpeed, zRotation * smartSpeed);
   }
+
 
   private void driveRobotRelative(ChassisSpeeds speeds) {
 

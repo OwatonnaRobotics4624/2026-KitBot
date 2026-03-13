@@ -109,7 +109,7 @@ public class RobotContainer {
       fuelSubsystem,
       SmartDashboard.getNumber("Slow Launching launcher roller RPM", SLOW_LAUNCHING_LAUNCHER_RPM)));
 
-    operatorController.y().onTrue(new InstantCommand(() -> driveSubsystem.resetYaw()));
+    operatorController.x().onTrue(new InstantCommand(() -> driveSubsystem.resetYaw()));
 
 
     //operatorController.b().whileTrue(getAutonomousCommand())

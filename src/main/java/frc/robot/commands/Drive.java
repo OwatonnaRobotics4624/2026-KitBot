@@ -42,9 +42,12 @@ public class Drive extends Command {
   public void execute() {
     double scale = SmartDashboard.getNumber("Slow speed scale", SLOW_SPEED_SCALE);
     double slowScaling = 1 - controller.getLeftTriggerAxis();
-    slowScaling = slowScaling*(scale) +scale;
-    //System.out.println(slowScaling);
-    driveSubsystem.driveArcade(-controller.getLeftY() * DRIVE_SCALING * slowScaling, -controller.getRightX() * ROTATION_SCALING * slowScaling);
+    slowScaling = slowScaling*(scale) +(1-scale);
+    System.out.println(slowScaling);
+    driveSubsystem.driveArcade(
+      -controller.getLeftY() * DRIVE_SCALING * slowScaling,
+      -controller.getRightX() * ROTATION_SCALING * slowScaling,
+      () -> controller.y().getAsBoolean());
   }
 
   // Called once the command ends or is interrupted.
