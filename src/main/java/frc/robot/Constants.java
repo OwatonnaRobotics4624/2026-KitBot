@@ -32,13 +32,13 @@ public final class Constants {
 
     public static final double DEFAULT_ROBOT_SPEED = .9;
 
-
+    public static final double DEADZONE = 0.1;
     public static final double SLOW_SPEED_SCALE = .7;
 
     public static final class OdometryConstants {
       public static final double TRACK_WIDTH_METERS = 0.546;
       public static final double DRIVE_GEAR_RATIO = 1/8.46;
-      public static final double DRIVE_WHEEL_CIRCUMFERENCE = 18.8495559215;
+      public static final double DRIVE_WHEEL_CIRCUMFERENCE = 0.4787787204060999;
       
     }
   }

@@ -147,26 +147,26 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightDriveFollowerConfig.encoder.apply(m_rightEncoderConfig);
     
 
-    //left follower (inverted, on coast)
+    //left follower (not inverted, on coast)
     leftDriveFollowerConfig.follow(leftLeader);
-    leftDriveFollowerConfig.inverted(true);
+    leftDriveFollowerConfig.inverted(false);
     leftDriveFollowerConfig.idleMode(IdleMode.kCoast);
     leftFollower.configure(leftDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
-    //right follower (not inverted, on coast)
+    //right follower (inverted, on coast)
     rightDriveFollowerConfig.follow(rightLeader);
-    rightDriveFollowerConfig.inverted(false);
+    rightDriveFollowerConfig.inverted(true);
     rightDriveFollowerConfig.idleMode(IdleMode.kCoast);
     rightFollower.configure(rightDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
-    //left leader (inverted, on coast)
-    leftDriveLeaderConfig.inverted(true);
+    //left leader (not inverted, on coast)
+    leftDriveLeaderConfig.inverted(false);
     leftDriveLeaderConfig.idleMode(IdleMode.kCoast);
     leftLeader.configure(leftDriveLeaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
-    //right leader (not inverted, on coast)
-    rightDriveLeaderConfig.inverted(false);
+    //right leader (inverted, on coast)
+    rightDriveLeaderConfig.inverted(true);
     rightDriveLeaderConfig.idleMode(IdleMode.kCoast);
     rightLeader.configure(rightDriveLeaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -250,6 +250,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     updateKinematics();
     updatePoseEstimator();
     updatePoseVisionEstimator();
+    SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+    SmartDashboard.putNumber("Right Distance", m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+
+    SmartDashboard.putNumber("Left Velocity", m_leftEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+    SmartDashboard.putNumber("Right Velocity", m_rightEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+
   }
 
   private void updatePoseVisionEstimator(){
@@ -333,8 +339,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updateKinematics(){
     wheelSpeeds = new DifferentialDriveWheelSpeeds(
-      m_leftEncoder.getVelocity(),
-      m_rightEncoder.getVelocity()
+      m_leftEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
+      m_rightEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE
     );
     // Convert to chassis speeds.
     chassisSpeeds = m_kinematics.toChassisSpeeds(wheelSpeeds);
@@ -343,8 +349,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     // Angular velocity
     angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
 
-    SmartDashboard.putNumber("Linear Velocity (m/s)", Math.abs(linearVelocity));
-    SmartDashboard.putNumber("Angular Velocity (rad/s)", Math.abs(angularVelocity));
+    SmartDashboard.putNumber("Linear Velocity (m/s)", Math.abs(linearVelocity* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE) );
+    SmartDashboard.putNumber("Angular Velocity (rad/s)", Math.abs(angularVelocity* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE));
   }
 
   public Pose2d getPose(){

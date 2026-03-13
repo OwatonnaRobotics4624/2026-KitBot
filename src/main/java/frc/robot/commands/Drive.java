@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.CANDriveSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -45,8 +46,8 @@ public class Drive extends Command {
     slowScaling = slowScaling*(scale) +(1-scale);
     System.out.println(slowScaling);
     driveSubsystem.driveArcade(
-      -controller.getLeftY() * DRIVE_SCALING * slowScaling,
-      -controller.getRightX() * ROTATION_SCALING * slowScaling,
+      applyDeadzone(-controller.getLeftY(), DriveConstants.DEADZONE) * DRIVE_SCALING * slowScaling,
+      applyDeadzone(-controller.getRightX(), DriveConstants.DEADZONE) * ROTATION_SCALING * slowScaling,
       () -> controller.y().getAsBoolean());
   }
 
@@ -61,4 +62,12 @@ public class Drive extends Command {
   public boolean isFinished() {
     return false;
   }
+
+  public double applyDeadzone(double input, double deadzone) {
+    if (Math.abs(input) < deadzone) {
+      return 0.0;
+    }
+    // Scale input to start smoothly from 0 after the deadzone
+    return Math.signum(input) * ((Math.abs(input) - deadzone) / (1.0 - deadzone));
+}
 }
