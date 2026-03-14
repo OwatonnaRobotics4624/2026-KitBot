@@ -48,16 +48,16 @@
     },
     {
       "anchor": {
-        "x": 4.633392645314355,
-        "y": 5.568
+        "x": 4.98125,
+        "y": 5.568185053380782
       },
       "prevControl": {
-        "x": 5.62329690631361,
-        "y": 5.568
+        "x": 5.971154260999255,
+        "y": 5.568185053380782
       },
       "nextControl": {
-        "x": 3.8130572513398504,
-        "y": 5.568
+        "x": 4.160914606025496,
+        "y": 5.568185053380782
       },
       "isLocked": false,
       "linkedName": null
@@ -84,8 +84,8 @@
         "y": 5.568185053380782
       },
       "prevControl": {
-        "x": 3.258361232631332,
-        "y": 5.568185053380782
+        "x": 3.4203642384129704,
+        "y": 5.574105960268073
       },
       "nextControl": null,
       "isLocked": false,
@@ -96,8 +96,8 @@
   "constraintZones": [
     {
       "name": "bump",
-      "minWaypointRelativePos": 2.6434195725534426,
-      "maxWaypointRelativePos": 3.543307086614157,
+      "minWaypointRelativePos": 2.7491166077738436,
+      "maxWaypointRelativePos": 3.992932862190827,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 0.8,
@@ -109,8 +109,8 @@
     },
     {
       "name": "april tag",
-      "minWaypointRelativePos": 2.0918727915195143,
-      "maxWaypointRelativePos": 2.5441696113074204,
+      "minWaypointRelativePos": 2.106007067137801,
+      "maxWaypointRelativePos": 2.3604240282685387,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 1.5,
@@ -124,7 +124,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 2.5,
     "maxAcceleration": 1.5,
     "maxAngularVelocity": 70.0,
     "maxAngularAcceleration": 40.0,

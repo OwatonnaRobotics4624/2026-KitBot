@@ -189,6 +189,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     m_poseEstimator =
       new DifferentialDrivePoseEstimator(
+
+
           m_kinematics,
           m_gyro.getRotation2d(),
           m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
@@ -253,8 +255,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
     SmartDashboard.putNumber("Right Distance", m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
 
-    SmartDashboard.putNumber("Left Velocity", m_leftEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
-    SmartDashboard.putNumber("Right Velocity", m_rightEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+    SmartDashboard.putNumber("Left Velocity", m_leftEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE /60);
+    SmartDashboard.putNumber("Right Velocity", m_rightEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE/60);
 
   }
 
@@ -339,8 +341,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updateKinematics(){
     wheelSpeeds = new DifferentialDriveWheelSpeeds(
-      m_leftEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
-      m_rightEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE
+      m_leftEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE/60,
+      m_rightEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE/60
     );
     // Convert to chassis speeds.
     chassisSpeeds = m_kinematics.toChassisSpeeds(wheelSpeeds);

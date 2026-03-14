@@ -43,9 +43,41 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Normal Shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Normal Shoot"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left agitate fbackup"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Left agitate forward"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
