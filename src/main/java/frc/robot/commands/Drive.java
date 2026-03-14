@@ -44,7 +44,7 @@ public class Drive extends Command {
     double scale = SmartDashboard.getNumber("Slow speed scale", SLOW_SPEED_SCALE);
     double slowScaling = 1 - controller.getLeftTriggerAxis();
     slowScaling = slowScaling*(scale) +(1-scale);
-    System.out.println(slowScaling);
+    //System.out.println(slowScaling);
     driveSubsystem.driveArcade(
       applyDeadzone(-controller.getLeftY(), DriveConstants.DEADZONE) * DRIVE_SCALING * slowScaling,
       applyDeadzone(-controller.getRightX(), DriveConstants.DEADZONE) * ROTATION_SCALING * slowScaling,
