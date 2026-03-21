@@ -67,14 +67,22 @@ public class RobotContainer {
     // autoChooser.addOption
     
     autoChooser.setDefaultOption("No Autonomous", new InstantCommand());
-    autoChooser.addOption("Drive Forward auto", new PathPlannerAuto("drive forward"));
+    autoChooser.addOption("Backup And Shoot", new PathPlannerAuto("Backup And Shoot"));
     //autoChooser.addOption("Wave auto", new PathPlannerAuto("wave"));
     //autoChooser.addOption("square auto", new PathPlannerAuto("square"));
+
+
+    autoChooser.addOption("Left Trench Auto",  new PathPlannerAuto("Left Trench Auto"));
+    autoChooser.addOption("Right Trench Auto",  new PathPlannerAuto("Right Trench Auto"));
+    autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto"));
+    autoChooser.addOption("Right Bump Auto", new PathPlannerAuto("Right Bump Auto"));
+
+    autoChooser.addOption("Middle Auto Outpost",  new PathPlannerAuto("Middle Auto Outpost"));
     autoChooser.addOption("Middle Auto Straight on Depot", new PathPlannerAuto("Middle Auto Straight on Depot"));
     autoChooser.addOption("Middle Auto Diagonal on Depot", new PathPlannerAuto("Middle Auto Diagonal on Depot"));
-    autoChooser.addOption("Middle Auto Outpost",  new PathPlannerAuto("Middle Auto Outpost"));
-    autoChooser.addOption("Left Trench Auto",  new PathPlannerAuto("Left Trench Auto"));
-    autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto"));
+
+    //autoChooser.addOption("Drive Forward auto", new PathPlannerAuto("drive forward"));
+
     
 
     SmartDashboard.putData(autoChooser);
