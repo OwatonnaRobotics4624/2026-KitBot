@@ -27,11 +27,13 @@ public class Eject extends Command {
     fuelSubsystem
         .setIntakeRoller(
             -1 * SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE));
-    // fuelSubsystem
-        //.setLauncherRollerRPM(
-          //  -1 * SmartDashboard.getNumber("Launching launcher roller RPM", LAUNCHING_LAUNCHER_RPM));
+    fuelSubsystem
+        .setLauncherRollerRPM(
+           -1 * SmartDashboard.getNumber("Launching launcher roller RPM", LAUNCHING_LAUNCHER_RPM));
     fuelSubsystem
         .setFeederRoller(-1 * SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
+
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled. This

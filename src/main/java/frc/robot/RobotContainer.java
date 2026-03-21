@@ -74,8 +74,8 @@ public class RobotContainer {
 
     autoChooser.addOption("Left Trench Auto",  new PathPlannerAuto("Left Trench Auto"));
     autoChooser.addOption("Right Trench Auto",  new PathPlannerAuto("Right Trench Auto"));
-    autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto"));
-    autoChooser.addOption("Right Bump Auto", new PathPlannerAuto("Right Bump Auto"));
+    //autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto"));
+    //autoChooser.addOption("Right Bump Auto", new PathPlannerAuto("Right Bump Auto"));
 
     autoChooser.addOption("Middle Auto Outpost",  new PathPlannerAuto("Middle Auto Outpost"));
     autoChooser.addOption("Middle Auto Straight on Depot", new PathPlannerAuto("Middle Auto Straight on Depot"));
