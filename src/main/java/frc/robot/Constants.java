@@ -73,12 +73,12 @@ public final class Constants {
     public static final double LAUNCHING_INTAKE_VOLTAGE = -6;
     public static final double LAUNCHING_FEEDER_VOLTAGE = -7;
 
-    public static final double LAUNCHING_LAUNCHER_RPM = 2300; //Original: 2300
-    public static final double SLOW_LAUNCHING_LAUNCHER_RPM = 2100;
+    public static final double LAUNCHING_LAUNCHER_RPM = 2500; //Original: 2300
+    public static final double SLOW_LAUNCHING_LAUNCHER_RPM = 2500;
     public static final double INTAKING_LAUNCHER_RPM = 0;
 
     public static final double SPIN_UP_FEEDER_VOLTAGE = 1;
-    public static final double SPIN_UP_SECONDS = 0.2;
+    public static final double SPIN_UP_SECONDS = 0.1;
 
     public static final class LauncherConstants{
       public static final double LAUNCHER_kP = 0.00025;
@@ -126,7 +126,7 @@ public final class Constants {
     public static final boolean USE_LIMELIGHT_FR = true;
 
     public static final boolean USE_MEGA_TAG_1 = true;
-    public static final boolean USE_MEGA_TAG_2 = false;
+    public static final boolean USE_MEGA_TAG_2 = true;
 
   
     

@@ -4,6 +4,19 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.DriveConstants.DRIVE_MOTOR_CURRENT_LIMIT;
+import static frc.robot.Constants.DriveConstants.GYRO_CAN_ID;
+import static frc.robot.Constants.DriveConstants.LEFT_FOLLOWER_ID;
+import static frc.robot.Constants.DriveConstants.LEFT_LEADER_ID;
+import static frc.robot.Constants.DriveConstants.RIGHT_FOLLOWER_ID;
+import static frc.robot.Constants.DriveConstants.RIGHT_LEADER_ID;
+
+import java.util.function.BooleanSupplier;
+
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPLTVController;
 //import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.PersistMode; // use as its not depracated
 import com.revrobotics.RelativeEncoder;
@@ -12,12 +25,8 @@ import com.revrobotics.ResetMode; // use as its not depracated
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.EncoderConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPLTVController;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
@@ -25,28 +34,17 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-
-import static frc.robot.Constants.DriveConstants.*;
-
-import java.nio.Buffer;
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.revrobotics.encoder.config.*;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants.OdometryConstants;
+import frc.robot.LimelightHelpers;
 
 public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax leftLeader;
@@ -257,6 +255,12 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updatePoseVisionEstimator(){
     //Boy-love limelight (jk back left)
+
+    double robotYaw = m_robotPose.getRotation().getDegrees();
+    double robotPitch = m_gyro.getPitch().getValueAsDouble();
+    double robotRoll = m_gyro.getRoll().getValueAsDouble();
+
+
     if (Constants.VisionConstants.USE_LIMELIGHT_BL){
       if (Constants.VisionConstants.USE_MEGA_TAG_1) {
         // In your periodic function:
@@ -271,19 +275,20 @@ public class CANDriveSubsystem extends SubsystemBase {
       }
 
       if (Constants.VisionConstants.USE_MEGA_TAG_2) {
+        
         // First, tell Limelight your robot's current orientation
-        double robotYaw = m_gyro.getYaw().getValueAsDouble() - 180;
         LimelightHelpers.SetRobotOrientation("limelight-bl", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
         // Get the pose estimate
         LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-bl");
-
-        // Add it to your pose estimator
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.2, .2, 30));
-        m_poseEstimator.addVisionMeasurement(
-            limelightMeasurement.pose,
-            limelightMeasurement.timestampSeconds
-        );
+        if (limelightMeasurement.tagCount >= 1) {  // Only trust measurement if we see multiple tags
+          // Add it to your pose estimator
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.2, .2, 30));
+          m_poseEstimator.addVisionMeasurement(
+              limelightMeasurement.pose,
+              limelightMeasurement.timestampSeconds
+          );
+        }
       }
     }
 
@@ -303,18 +308,18 @@ public class CANDriveSubsystem extends SubsystemBase {
 
       if (Constants.VisionConstants.USE_MEGA_TAG_2) {
         // First, tell Limelight your robot's current orientation
-        double robotYaw = m_gyro.getYaw().getValueAsDouble() - 180;
         LimelightHelpers.SetRobotOrientation("limelight-fr", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
         // Get the pose estimate
         LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-fr");
-
-        // Add it to your pose estimator
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.2, .2, 30));
-        m_poseEstimator.addVisionMeasurement(
-            limelightMeasurement.pose,
-            limelightMeasurement.timestampSeconds
-        );
+        if (limelightMeasurement.tagCount >= 1) {  // Only trust measurement if we see multiple tags
+          // Add it to your pose estimator
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.2, .2, 30));
+          m_poseEstimator.addVisionMeasurement(
+              limelightMeasurement.pose,
+              limelightMeasurement.timestampSeconds
+          );
+        }
       }
     }
   }
@@ -386,6 +391,21 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   public void resetPose(Pose2d newPose){
     m_poseEstimator.resetPose(newPose);
+    m_gyro.setYaw(newPose.getRotation().getDegrees());
+  }
+
+  public void resetDriverCentricYaw(){
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Red){
+        m_gyro.setYaw(180);
+        
+      } else {
+        m_gyro.setYaw(0);
+      }
+    }else{
+      m_gyro.setYaw(0);
+    }
   }
 
   public void resetYaw(){

@@ -68,13 +68,13 @@ public class RobotContainer {
     
     autoChooser.setDefaultOption("No Autonomous", new InstantCommand());
     autoChooser.addOption("Drive Forward auto", new PathPlannerAuto("drive forward"));
-    autoChooser.addOption("Wave auto", new PathPlannerAuto("wave"));
-    autoChooser.addOption("square auto", new PathPlannerAuto("square"));
+    //autoChooser.addOption("Wave auto", new PathPlannerAuto("wave"));
+    //autoChooser.addOption("square auto", new PathPlannerAuto("square"));
     autoChooser.addOption("Middle Auto Straight on Depot", new PathPlannerAuto("Middle Auto Straight on Depot"));
     autoChooser.addOption("Middle Auto Diagonal on Depot", new PathPlannerAuto("Middle Auto Diagonal on Depot"));
     autoChooser.addOption("Middle Auto Outpost",  new PathPlannerAuto("Middle Auto Outpost"));
     autoChooser.addOption("Left Trench Auto",  new PathPlannerAuto("Left Trench Auto"));
-    autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto"));
+    autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto").);
     
 
     SmartDashboard.putData(autoChooser);
@@ -109,7 +109,10 @@ public class RobotContainer {
       fuelSubsystem,
       SmartDashboard.getNumber("Slow Launching launcher roller RPM", SLOW_LAUNCHING_LAUNCHER_RPM)));
 
-    operatorController.x().onTrue(new InstantCommand(() -> driveSubsystem.resetYaw()));
+    operatorController.x().whileTrue((new InstantCommand(() -> {
+      driveSubsystem.resetDriverCentricYaw();
+      System.out.println("Reset Yaw");
+    })));
 
 
     //operatorController.b().whileTrue(getAutonomousCommand())

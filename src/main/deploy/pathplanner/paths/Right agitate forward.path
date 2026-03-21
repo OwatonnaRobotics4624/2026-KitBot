@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5220033112582776,
-        "y": 5.0296109271523175
+        "x": 3.3477649006622516,
+        "y": 2.884
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.31721530018603,
-        "y": 5.173005036240079
+        "x": 3.5525529117344994,
+        "y": 3.0273941090877616
       },
       "isLocked": false,
-      "linkedName": "Left Bump Shoot"
+      "linkedName": "Agitate right"
     },
     {
       "anchor": {
-        "x": 3.2533857615894046,
-        "y": 5.232889072847681
+        "x": 3.478905304944842,
+        "y": 2.9847375972449957
       },
       "prevControl": {
-        "x": 3.4794496024459627,
-        "y": 5.0745974673632785
+        "x": 3.252841464088284,
+        "y": 2.8264459917605933
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Agitate left end"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -41,13 +41,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.5,
+    "velocity": 0.0,
     "rotation": 0.0
   },
-  "reversed": false,
-  "folder": "Left Trench Auto",
+  "reversed": true,
+  "folder": "Right Trench Auto",
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 0.5,
     "rotation": 0.0
   },
   "useDefaultConstraints": false

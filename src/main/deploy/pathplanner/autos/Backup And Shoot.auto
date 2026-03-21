@@ -1,0 +1,25 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backup and shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Normal Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Optimized Autos",
+  "choreoAuto": false
+}

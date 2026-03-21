@@ -65,12 +65,6 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Left agitate fbackup"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
                         "pathName": "Left agitate forward"
                       }
                     }

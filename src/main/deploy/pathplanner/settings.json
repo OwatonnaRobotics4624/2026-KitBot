@@ -1,13 +1,14 @@
 {
-  "robotWidth": 0.85725,
+  "robotWidth": 0.857,
   "robotLength": 0.85725,
   "holonomicMode": false,
   "pathFolders": [
     "Depot",
     "Left Bump Auto",
     "Left Trench Auto",
-    "Right Bump Auto",
+    "Backup and shoot",
     "Outpost",
+    "Right Bump Auto",
     "Right Trench Auto"
   ],
   "autoFolders": [

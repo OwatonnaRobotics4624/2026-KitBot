@@ -54,8 +54,8 @@ public class Robot extends TimedRobot {
     // Used to track usage of Kitbot code, please do not remove.
     //HAL.report(tResourceType.kResourceType_Framework, 10);
 
-    //UsbCamera camera = CameraServer.startAutomaticCapture();
-    //camera.setResolution(1280, 720);
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(320, 240);
   }
 
   /**

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.3477649006622516,
-        "y": 5.145999999999999
+        "x": 3.4897883415501436,
+        "y": 4.03481880775182
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.5525529117344994,
-        "y": 5.002605890912237
+        "x": 3.2397883415501436,
+        "y": 4.03481880775182
       },
       "isLocked": false,
-      "linkedName": "left trench agitate start"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.478905304944842,
-        "y": 5.045262402755004
+        "x": 3.1907418067279094,
+        "y": 4.03481880775182
       },
       "prevControl": {
-        "x": 3.252841464088284,
-        "y": 5.203554008239406
+        "x": 3.484576204161708,
+        "y": 4.03481880775182
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "left trench agitate end"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -34,21 +34,21 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 2.5,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 100.0,
     "maxAngularAcceleration": 50.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 0.0
+    "velocity": 0,
+    "rotation": 103.5664863004717
   },
-  "reversed": true,
-  "folder": "Left Trench Auto",
+  "reversed": false,
+  "folder": "Backup and shoot",
   "idealStartingState": {
-    "velocity": 0.5,
+    "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
