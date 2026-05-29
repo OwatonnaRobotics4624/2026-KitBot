@@ -27,13 +27,13 @@ public final class Constants {
     public static final int RIGHT_LEADER_ID = 3;
     public static final int RIGHT_FOLLOWER_ID = 4;
 
-    public static final double kLeftP = 4; // these absoutly need to be tuned
+    public static final double kLeftP = 0.4; // these absoutly need to be tuned
     public static final double kLeftI = 0;
-    public static final double kLeftD = 0.2;
+    public static final double kLeftD = 0.01;
 
-    public static final double kRightP = 4; // these absoutly need to be tuned
+    public static final double kRightP = 0.4; // these absoutly need to be tuned
     public static final double kRightI = 0;
-    public static final double kRightD = 0.2;
+    public static final double kRightD = 0.01;
 
     public static final IdleMode kDisabledIdle=IdleMode.kBrake;
     public static final IdleMode kEnabledIdle=IdleMode.kBrake;
