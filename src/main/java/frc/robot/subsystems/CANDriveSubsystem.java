@@ -3,7 +3,13 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.DriveConstants.DRIVE_MOTOR_CURRENT_LIMIT;
 import static frc.robot.Constants.DriveConstants.GYRO_CAN_ID;
 import static frc.robot.Constants.DriveConstants.LEFT_FOLLOWER_ID;
@@ -28,7 +34,11 @@ import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.DifferentialDriveFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -37,13 +47,18 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.OdometryConstants;
+import frc.robot.Constants.DriveConstants.SysIdConstants;
 import frc.robot.LimelightHelpers;
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -52,7 +67,7 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightLeader;
   private final SparkMax rightFollower;
 
-  private final DifferentialDrive drive;
+  //private final DifferentialDrive drive;
 
   private SparkMaxConfig leftDriveLeaderConfig;
   private SparkMaxConfig rightDriveLeaderConfig;
@@ -64,6 +79,21 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private RelativeEncoder m_leftEncoder;
   private RelativeEncoder m_rightEncoder;
+
+  private SparkClosedLoopController m_leftController;
+  private SparkClosedLoopController m_rightController;
+
+  /*uncomment once you actually have sysid values */
+  
+  /* 
+  private DifferentialDriveFeedforward m_feedforward = new DifferentialDriveFeedforward(
+    SysIdConstants.kVLinear,
+    SysIdConstants.kALinear,
+    SysIdConstants.kVAngular,
+    SysIdConstants.kAAngular,
+    OdometryConstants.TRACK_WIDTH_METERS
+  );
+  */
 
   //private DifferentialDriveOdometry m_odometry;
 
@@ -81,127 +111,184 @@ public class CANDriveSubsystem extends SubsystemBase {
   private Field2d field2d; 
 
   private final DifferentialDrivePoseEstimator m_poseEstimator;
-
-  public CANDriveSubsystem() {
-
-
-    
-    // create brushed motors for drive
-    leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
-    leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
-    rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
-    rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
-
-    
-
-    //Accesses Smart Dashboard and Sets Initial Robot Speed
-    SmartDashboard.putNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);
-    SmartDashboard.setPersistent("Robot Speed");
-
-    
-    // set up differential drive class
-    drive = new DifferentialDrive(leftLeader, rightLeader);
-
-    // Set can timeout. Because this project only sets parameters once on
-    // construction, the timeout can be long without blocking robot operation. Code
-    // which sets or gets parameters during operation may need a shorter timeout.
-    leftLeader.setCANTimeout(250);
-    rightLeader.setCANTimeout(250);
-    leftFollower.setCANTimeout(250);
-    rightFollower.setCANTimeout(250);
-
-    // Create the configuration to apply to motors. Voltage compensation
-    // helps the robot perform more similarly on diff   erent
-    // battery voltages (at the cost of a little bit of top speed on a fully charged
-    // battery). The current limit helps prevent tripping
-    // breakers.
-
-    leftDriveLeaderConfig = new SparkMaxConfig();
-    rightDriveLeaderConfig = new SparkMaxConfig();
-    leftDriveFollowerConfig = new SparkMaxConfig();
-    rightDriveFollowerConfig = new SparkMaxConfig();
-
-    // Set configuration to follow each leader and then apply it to corresponding
-    // follower. Resetting in case a new controller is swapped
-    // in and persisting in case of a controller reset due to breaker trip
-
-    leftDriveLeaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-    rightDriveLeaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-    leftDriveFollowerConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-    rightDriveFollowerConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-
-    m_leftEncoderConfig = new EncoderConfig();
-    m_rightEncoderConfig = new EncoderConfig();
-
-    m_leftEncoderConfig.positionConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
-    m_rightEncoderConfig.positionConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
-
-    m_leftEncoderConfig.velocityConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
-    m_rightEncoderConfig.velocityConversionFactor(OdometryConstants.DRIVE_GEAR_RATIO);
-
-    leftDriveLeaderConfig.encoder.apply(m_leftEncoderConfig);
-    rightDriveLeaderConfig.encoder.apply(m_rightEncoderConfig);
-    leftDriveFollowerConfig.encoder.apply(m_leftEncoderConfig);
-    rightDriveFollowerConfig.encoder.apply(m_rightEncoderConfig);
-    
-
-    //left follower (not inverted, on coast)
-    leftDriveFollowerConfig.follow(leftLeader);
-    leftDriveFollowerConfig.inverted(false);
-    leftDriveFollowerConfig.idleMode(IdleMode.kCoast);
-    leftFollower.configure(leftDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-
-    //right follower (inverted, on coast)
-    rightDriveFollowerConfig.follow(rightLeader);
-    rightDriveFollowerConfig.inverted(true);
-    rightDriveFollowerConfig.idleMode(IdleMode.kCoast);
-    rightFollower.configure(rightDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
-    //left leader (not inverted, on coast)
-    leftDriveLeaderConfig.inverted(false);
-    leftDriveLeaderConfig.idleMode(IdleMode.kCoast);
-    leftLeader.configure(leftDriveLeaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
-    //right leader (inverted, on coast)
-    rightDriveLeaderConfig.inverted(true);
-    rightDriveLeaderConfig.idleMode(IdleMode.kCoast);
-    rightLeader.configure(rightDriveLeaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    m_gyro = new Pigeon2(GYRO_CAN_ID);
-    
-    m_leftEncoder = leftLeader.getEncoder();
-    m_rightEncoder = rightLeader.getEncoder();
-
-    field2d = new Field2d();  
-
-    // Creating my kinematics object: track width of 55 cm
-    m_kinematics = new DifferentialDriveKinematics(0.546);
-    wheelSpeeds = new DifferentialDriveWheelSpeeds(0, 0);
-    // Convert to chassis speeds.
-    chassisSpeeds = m_kinematics.toChassisSpeeds(wheelSpeeds);
-    // Linear velocity
-    linearVelocity = chassisSpeeds.vxMetersPerSecond;
-    // Angular velocity
-    angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
-
-    m_poseEstimator =
+  private SysIdRoutine m_sysIdRoutine = null;
+  
+    public CANDriveSubsystem() {
+  
+  
+      
+      // create brushed motors for drive
+      leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
+      leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
+      rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
+      rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+  
+      
+  
+      //Accesses Smart Dashboard and Sets Initial Robot Speed
+      SmartDashboard.putNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);
+      SmartDashboard.setPersistent("Robot Speed");
+  
+      
+      // set up differential drive class
+      //drive = new DifferentialDrive(leftLeader, rightLeader);
+  
+      // Set can timeout. Because this project only sets parameters once on
+      // construction, the timeout can be long without blocking robot operation. Code
+      // which sets or gets parameters during operation may need a shorter timeout.
+      leftLeader.setCANTimeout(250);
+      rightLeader.setCANTimeout(250);
+      leftFollower.setCANTimeout(250);
+      rightFollower.setCANTimeout(250);
+  
+      // Create the configuration to apply to motors. Voltage compensation
+      // helps the robot perform more similarly on different
+      // battery voltages (at the cost of a little bit of top speed on a fully charged
+      // battery). The current limit helps prevent tripping
+      // breakers.
+  
+      leftDriveLeaderConfig = new SparkMaxConfig();
+      rightDriveLeaderConfig = new SparkMaxConfig();
+      leftDriveFollowerConfig = new SparkMaxConfig();
+      rightDriveFollowerConfig = new SparkMaxConfig();
+  
+      ClosedLoopConfig leftPIDConfig = new ClosedLoopConfig();
+      ClosedLoopConfig rightPIDConfig = new ClosedLoopConfig();
+  
+      leftPIDConfig.pid(DriveConstants.kLeftP, DriveConstants.kLeftI, DriveConstants.kLeftD);
+      rightPIDConfig.pid(DriveConstants.kRightP, DriveConstants.kRightI, DriveConstants.kRightD);
+  
+      leftDriveLeaderConfig.closedLoop.apply(leftPIDConfig);
+      rightDriveLeaderConfig.closedLoop.apply(rightPIDConfig);
+  
+      // Set configuration to follow each leader and then apply it to corresponding
+      // follower. Resetting in case a new controller is swapped
+      // in and persisting in case of a controller reset due to breaker trip
+  
+      leftDriveLeaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+      rightDriveLeaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+      leftDriveFollowerConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+      rightDriveFollowerConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+  
+      m_leftEncoderConfig = new EncoderConfig();
+      m_rightEncoderConfig = new EncoderConfig();
+  
+      m_leftEncoderConfig.positionConversionFactor(OdometryConstants.kPositionFactor);
+      m_rightEncoderConfig.positionConversionFactor(OdometryConstants.kPositionFactor);
+  
+      m_leftEncoderConfig.velocityConversionFactor(OdometryConstants.kVelocityFactor);
+      m_rightEncoderConfig.velocityConversionFactor(OdometryConstants.kVelocityFactor);
+  
+      leftDriveLeaderConfig.encoder.apply(m_leftEncoderConfig);
+      rightDriveLeaderConfig.encoder.apply(m_rightEncoderConfig);
+      leftDriveFollowerConfig.encoder.apply(m_leftEncoderConfig);
+      rightDriveFollowerConfig.encoder.apply(m_rightEncoderConfig);
+      
+  
+      //left follower (not inverted, on coast)
+      leftDriveFollowerConfig.follow(leftLeader);
+      leftDriveFollowerConfig.inverted(false);
+      leftDriveFollowerConfig.idleMode(DriveConstants.kEnabledIdle);
+      leftFollower.configure(leftDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  
+  
+      //right follower (inverted, on coast)
+      rightDriveFollowerConfig.follow(rightLeader);
+      rightDriveFollowerConfig.inverted(true);
+      rightDriveFollowerConfig.idleMode(DriveConstants.kEnabledIdle);
+      rightFollower.configure(rightDriveFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      
+      //left leader (not inverted, on coast)
+      leftDriveLeaderConfig.inverted(false);
+      leftDriveLeaderConfig.idleMode(DriveConstants.kEnabledIdle);
+      leftLeader.configure(leftDriveLeaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      
+      //right leader (inverted, on coast)
+      rightDriveLeaderConfig.inverted(true);
+      rightDriveLeaderConfig.idleMode(DriveConstants.kEnabledIdle);
+      rightLeader.configure(rightDriveLeaderConfig,ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  
+      m_leftController = leftLeader.getClosedLoopController();
+      m_rightController = rightLeader.getClosedLoopController();
+      
+  
+      m_gyro = new Pigeon2(GYRO_CAN_ID);
+      
+      m_leftEncoder = leftLeader.getEncoder();
+      m_rightEncoder = rightLeader.getEncoder();
+  
+      field2d = new Field2d();  
+  
+      // Creating my kinematics object: track width of 55 cm
+      m_kinematics = new DifferentialDriveKinematics(0.546);
+      wheelSpeeds = new DifferentialDriveWheelSpeeds(0, 0);
+      // Convert to chassis speeds.
+      chassisSpeeds = m_kinematics.toChassisSpeeds(wheelSpeeds);
+      // Linear velocity
+      linearVelocity = chassisSpeeds.vxMetersPerSecond;
+      // Angular velocity
+      angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
+  
+      m_poseEstimator =
       new DifferentialDrivePoseEstimator(
-
-
           m_kinematics,
           m_gyro.getRotation2d(),
-          m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
-          m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE,
+          m_leftEncoder.getPosition(),
+          m_rightEncoder.getPosition(),
           new Pose2d(),
           VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-          VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(30)));
+          VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(30))
+      );
+  
+      setUpPathplanner();
+      setUpLimelights();
 
+      //WARNING: IDK what the f**k this does this was spit out of chatgpt.
+      if(SysIdConstants.RunningSysIDTuning_TURN_THIS_OFF){
+        m_sysIdRoutine =
+          new SysIdRoutine(
+            new SysIdRoutine.Config(
+              Volts.per(Seconds).of(1),
+              Volts.of(7),
+              Seconds.of(10)
+            ),
 
-    setUpPathplanner();
-    setUpLimelights();
+            new SysIdRoutine.Mechanism(
+              (Voltage volts) -> {
+                  leftLeader.setVoltage(volts.in(Volts));
+                  rightLeader.setVoltage(volts.in(Volts));
+              },
 
+              log -> {
+                log.motor("left-drive")
+                  .voltage(Volts.of(leftLeader.getBusVoltage() * leftLeader.getAppliedOutput()))
+                  .linearPosition(edu.wpi.first.units.Units.Meters.of(m_leftEncoder.getPosition()))
+                  .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(m_leftEncoder.getVelocity()));
 
+                log.motor("right-drive")
+                  .voltage(Volts.of(rightLeader.getBusVoltage() * rightLeader.getAppliedOutput()))
+                  .linearPosition(edu.wpi.first.units.Units.Meters.of(m_rightEncoder.getPosition()))
+                  .linearVelocity(edu.wpi.first.units.Units.MetersPerSecond.of(m_rightEncoder.getVelocity()));
+              },
+              this
+            )
+          );
+    }
+
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    if (m_sysIdRoutine == null) {
+      throw new IllegalStateException("Hey if you are done running sysid Go delete all of the sysid junk");
+    }
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    if (m_sysIdRoutine == null) {
+      throw new IllegalStateException("Hey if you are done running sysid Go delete all of the sysid junk");
+    }
+    return m_sysIdRoutine.dynamic(direction);
   }
 
   private void setUpLimelights(){
@@ -326,7 +413,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updatePoseEstimator() {
     m_poseEstimator.update(
-      m_gyro.getRotation2d(), m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE, m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+      m_gyro.getRotation2d(), m_leftEncoder.getPosition(), m_rightEncoder.getPosition());
   }
 
   private void updateOdometry(){
@@ -341,8 +428,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private void updateKinematics(){
     wheelSpeeds = new DifferentialDriveWheelSpeeds(
-      m_leftEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE/60,
-      m_rightEncoder.getVelocity()* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE/60
+      m_leftEncoder.getVelocity(),
+      m_rightEncoder.getVelocity()
     );
     // Convert to chassis speeds.
     chassisSpeeds = m_kinematics.toChassisSpeeds(wheelSpeeds);
@@ -351,19 +438,18 @@ public class CANDriveSubsystem extends SubsystemBase {
     // Angular velocity
     angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
 
-    SmartDashboard.putNumber("Linear Velocity (m/s)", Math.abs(linearVelocity* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE) );
-    SmartDashboard.putNumber("Angular Velocity (rad/s)", Math.abs(angularVelocity* OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE));
+    SmartDashboard.putNumber("Linear Velocity (m/s)", Math.abs(linearVelocity) );
+    SmartDashboard.putNumber("Angular Velocity (rad/s)", Math.abs(angularVelocity));
     
-    SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
-    SmartDashboard.putNumber("Right Distance", m_rightEncoder.getPosition() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE);
+    SmartDashboard.putNumber("Left Distance", m_leftEncoder.getPosition());
+    SmartDashboard.putNumber("Right Distance", m_rightEncoder.getPosition());
 
-    SmartDashboard.putNumber("Left Velocity", m_leftEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE /60);
-    SmartDashboard.putNumber("Right Velocity", m_rightEncoder.getVelocity() * OdometryConstants.DRIVE_WHEEL_CIRCUMFERENCE/60);
+    SmartDashboard.putNumber("Left Velocity", m_leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Right Velocity", m_rightEncoder.getVelocity());
 
   }
 
   public Pose2d getPose(){
-    updateOdometry();
     return m_robotPose;
   }
 
@@ -425,49 +511,78 @@ public class CANDriveSubsystem extends SubsystemBase {
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
-    driveArcade(xSpeed,zRotation,false);
-    
+    driveArcade(xSpeed, zRotation, false);
   }
 
   public void driveArcade(double xSpeed, double zRotation, BooleanSupplier driveAtMax) {
-    driveArcade(xSpeed,zRotation,driveAtMax.getAsBoolean());
+    driveArcade(xSpeed, zRotation, driveAtMax.getAsBoolean());
   }
 
   public void driveArcade(double xSpeed, double zRotation, boolean driveAtMax) {
-    double smartSpeed = (driveAtMax) ? 1 : SmartDashboard.getNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);;
-    if (smartSpeed < 0){
-      smartSpeed = 0;
-      SmartDashboard.putNumber("Robot Speed", smartSpeed);
-    }
-    else if (smartSpeed > 1){
-      smartSpeed = 1;
-      SmartDashboard.putNumber("Robot Speed", smartSpeed);
-    }
-    
-    drive.arcadeDrive(xSpeed * smartSpeed, zRotation * smartSpeed);
+    double speedMultiplier = driveAtMax
+        ? 1.0
+        : SmartDashboard.getNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);
+
+    speedMultiplier = MathUtil.clamp(speedMultiplier, 0.0, 1.0);
+    SmartDashboard.putNumber("Robot Speed", speedMultiplier);
+
+    double leftOutput = xSpeed + zRotation;
+    double rightOutput = xSpeed - zRotation;
+
+    double maxMagnitude = Math.max(1.0,
+        Math.max(Math.abs(leftOutput), Math.abs(rightOutput)));
+
+    leftOutput /= maxMagnitude;
+    rightOutput /= maxMagnitude;
+
+    leftLeader.set(leftOutput * speedMultiplier);
+    rightLeader.set(rightOutput * speedMultiplier);
   }
 
 
   private void driveRobotRelative(ChassisSpeeds speeds) {
 
-    // Convert chassis speeds to wheel speeds
     DifferentialDriveWheelSpeeds wheelSpeeds =
         m_kinematics.toWheelSpeeds(speeds);
 
-    // Extract left and right speeds (meters per second)
-    double leftSpeed = wheelSpeeds.leftMetersPerSecond;
-    double rightSpeed = wheelSpeeds.rightMetersPerSecond;
+    m_leftController.setSetpoint(
+        wheelSpeeds.leftMetersPerSecond,
+        ControlType.kVelocity
+    );
 
-    // Optional: normalize to [-1,1] if needed
-    double maxSpeed = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-    if (maxSpeed > 1.0) {
-        leftSpeed /= maxSpeed;
-        rightSpeed /= maxSpeed;
-    }
-
-    // Drive tank style
-    drive.tankDrive(leftSpeed, rightSpeed);
+    m_rightController.setSetpoint(
+        wheelSpeeds.rightMetersPerSecond,
+        ControlType.kVelocity
+    );
   }
+
+  /* 
+  private void driveRobotRelative(ChassisSpeeds speeds) {
+
+    DifferentialDriveWheelSpeeds targetSpeeds =
+        m_kinematics.toWheelSpeeds(speeds);
+
+    DifferentialDriveWheelVoltages ff = feedforward.calculate(
+        getWheelSpeeds(),
+        targetSpeeds
+    );
+
+    leftController.setSetpoint(
+        targetSpeeds.leftMetersPerSecond,
+        ControlType.kVelocity,
+        ClosedLoopSlot.kSlot0,
+        ff.leftVoltage,
+        ArbFFUnits.kVoltage
+    );
+
+    rightController.setSetpoint(
+        targetSpeeds.rightMetersPerSecond,
+        ControlType.kVelocity,
+        ClosedLoopSlot.kSlot0,
+        ff.rightVoltage,
+        ArbFFUnits.kVoltage
+    );
+  }*/
 
   public void setDriveIdleToBrake(){
     setAllDriveIdleMode(IdleMode.kBrake, PersistMode.kNoPersistParameters);

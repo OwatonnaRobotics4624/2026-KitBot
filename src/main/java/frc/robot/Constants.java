@@ -5,6 +5,9 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.RobotConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.controller.DifferentialDriveFeedforward;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -24,11 +27,25 @@ public final class Constants {
     public static final int RIGHT_LEADER_ID = 3;
     public static final int RIGHT_FOLLOWER_ID = 4;
 
+    public static final double kLeftP = 4; // these absoutly need to be tuned
+    public static final double kLeftI = 0;
+    public static final double kLeftD = 0.2;
+
+    public static final double kRightP = 4; // these absoutly need to be tuned
+    public static final double kRightI = 0;
+    public static final double kRightD = 0.2;
+
+    public static final IdleMode kDisabledIdle=IdleMode.kBrake;
+    public static final IdleMode kEnabledIdle=IdleMode.kBrake;
+    
+
+    
+
     public static final int GYRO_CAN_ID = 18;
 
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 45;
 
     public static final double DEFAULT_ROBOT_SPEED = .9;
 
@@ -37,9 +54,18 @@ public final class Constants {
 
     public static final class OdometryConstants {
       public static final double TRACK_WIDTH_METERS = 0.546;
-      public static final double DRIVE_GEAR_RATIO = 1/8.46;
+      public static final double DRIVE_GEAR_RATIO = 1.0 / 8.46;
       public static final double DRIVE_WHEEL_CIRCUMFERENCE = 0.4787787204060999;
-      
+
+      public static final double kPositionFactor = DRIVE_WHEEL_CIRCUMFERENCE*DRIVE_GEAR_RATIO;
+      public static final double kVelocityFactor = kPositionFactor / 60.0;
+    }
+    public static final class SysIdConstants{
+      public static final boolean RunningSysIDTuning_TURN_THIS_OFF = true;
+      public static final double kVLinear = 0.1; // YOU NEED REAL VALUES HERE.
+      public static final double kALinear = 0.1; // Then go uncomment the m_feedForward varible in the 
+      public static final double kVAngular = 0.1; // Drive Sub as well as swap the driveRobotRelative 
+      public static final double kAAngular = 0.1; // with the one commented right below it
     }
   }
 
@@ -83,7 +109,7 @@ public final class Constants {
     public static final class LauncherConstants{
       public static final double LAUNCHER_kP = 0.00025;
       public static final double LAUNCHER_kI = 0.0;
-      public static final double LAUNCHER_kD = 0.00015;
+      public static final double LAUNCHER_kD = 0.000001;
 
       public static final double LAUNCHER_kMinOutput = -1;
       public static final double LAUNCHER_kMaxOutput = 1;

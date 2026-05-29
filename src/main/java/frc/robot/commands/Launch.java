@@ -16,23 +16,23 @@ public class Launch extends Command {
   /** Creates a new Intake. */
 
   CANFuelSubsystem fuelSubsystem;
-  private double m_rpm;
+  private DoubleSupplier m_rpmSupplier;
 
   public Launch(CANFuelSubsystem fuelSystem) {
     addRequirements(fuelSystem);
-    m_rpm=SmartDashboard.getNumber("Launching launcher roller RPM", LAUNCHING_LAUNCHER_RPM);
+    m_rpmSupplier = () -> SmartDashboard.getNumber("Launching launcher roller RPM",LAUNCHING_LAUNCHER_RPM);
     this.fuelSubsystem = fuelSystem;
   }
 
   public Launch(CANFuelSubsystem fuelSystem, double rpm) {
     addRequirements(fuelSystem);
-    m_rpm=rpm;
+    m_rpmSupplier = () -> rpm;
     this.fuelSubsystem = fuelSystem;
-  }
+}
 
   public Launch(CANFuelSubsystem fuelSystem, DoubleSupplier rpm) {
     addRequirements(fuelSystem);
-    m_rpm=rpm.getAsDouble();
+    m_rpmSupplier=rpm;
     this.fuelSubsystem = fuelSystem;
   }
 
@@ -41,13 +41,8 @@ public class Launch extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    fuelSubsystem
-        .setLauncherRollerRPM(
-            m_rpm);
-
-    fuelSubsystem
-        .setIntakeRoller(
-            SmartDashboard.getNumber("Launching intake roller value", LAUNCHING_INTAKE_VOLTAGE));
+    fuelSubsystem.setLauncherRollerRPM(m_rpmSupplier.getAsDouble());
+    fuelSubsystem.setIntakeRoller(SmartDashboard.getNumber("Launching intake roller value", LAUNCHING_INTAKE_VOLTAGE));
     fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
   }
 

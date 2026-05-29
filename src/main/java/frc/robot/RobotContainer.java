@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import static frc.robot.Constants.FuelConstants.SLOW_LAUNCHING_LAUNCHER_RPM;
 import static frc.robot.Constants.OperatorConstants.*;
@@ -59,8 +60,14 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    configureBindings();
+    if(Constants.DriveConstants.SysIdConstants.RunningSysIDTuning_TURN_THIS_OFF){
+      configureSysID();
+    } else{
+      configureBindings();
+    }
     initilizeNamedCommands();
+
+    
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
     // add additional auto modes you can add additional lines here with
@@ -68,22 +75,11 @@ public class RobotContainer {
     
     autoChooser.setDefaultOption("No Autonomous", new InstantCommand());
     autoChooser.addOption("Backup And Shoot", new PathPlannerAuto("Backup And Shoot"));
-    //autoChooser.addOption("Wave auto", new PathPlannerAuto("wave"));
-    //autoChooser.addOption("square auto", new PathPlannerAuto("square"));
-
-
     autoChooser.addOption("Left Trench Auto",  new PathPlannerAuto("Left Trench Auto"));
     autoChooser.addOption("Right Trench Auto",  new PathPlannerAuto("Right Trench Auto"));
-    //autoChooser.addOption("Left Bump Auto", new PathPlannerAuto("Left Bump Auto"));
-    //autoChooser.addOption("Right Bump Auto", new PathPlannerAuto("Right Bump Auto"));
-
     autoChooser.addOption("Middle Auto Outpost",  new PathPlannerAuto("Middle Auto Outpost"));
     autoChooser.addOption("Middle Auto Straight on Depot", new PathPlannerAuto("Middle Auto Straight on Depot"));
     autoChooser.addOption("Middle Auto Diagonal on Depot", new PathPlannerAuto("Middle Auto Diagonal on Depot"));
-
-    //autoChooser.addOption("Drive Forward auto", new PathPlannerAuto("drive forward"));
-
-    
 
     SmartDashboard.putData(autoChooser);
     //SmartDashboard.setPersistent("Auto Chooser");
@@ -135,11 +131,11 @@ public class RobotContainer {
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));
     
     RobotModeTriggers.disabled()
-      .onTrue(new InstantCommand(driveSubsystem::setDriveIdleToBrake, driveSubsystem)
+      .onTrue(new InstantCommand(() -> driveSubsystem.setDriveIdleMode(Constants.DriveConstants.kDisabledIdle), driveSubsystem)
       .ignoringDisable(true));
 
     RobotModeTriggers.teleop()
-      .onTrue(new InstantCommand(driveSubsystem::setDriveIdleToCoast, driveSubsystem)
+      .onTrue(new InstantCommand(() -> driveSubsystem.setDriveIdleMode(Constants.DriveConstants.kEnabledIdle), driveSubsystem)
       .ignoringDisable(true));
   }
 
@@ -153,6 +149,24 @@ public class RobotContainer {
     //NamedCommands.registerCommand("Normal Jogger", new Jogger(fuelSubsystem));
     NamedCommands.registerCommand("Stop Fuel Subsystem", new StopFuelSystem(fuelSubsystem));
     NamedCommands.registerCommand("Pre-speed up flywheel", new SpinUpFlywheel(fuelSubsystem, () -> Constants.FuelConstants.LAUNCHING_LAUNCHER_RPM));
+  }
+
+  private void configureSysID(){
+    driverController.a().whileTrue(
+      driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+    );
+
+    driverController.b().whileTrue(
+      driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+    );
+
+    driverController.x().whileTrue(
+      driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward)
+    );
+
+    driverController.y().whileTrue(
+      driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+    );
   }
 
   /**

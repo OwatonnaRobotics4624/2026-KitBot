@@ -25,7 +25,7 @@ public class Jogger extends Command {
   @Override
   public void initialize() {
     fuelSubsystem
-        .setFeederRoller(1 * SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
+        .setFeederRoller(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
