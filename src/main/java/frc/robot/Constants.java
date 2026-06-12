@@ -27,11 +27,11 @@ public final class Constants {
     public static final int RIGHT_LEADER_ID = 3;
     public static final int RIGHT_FOLLOWER_ID = 4;
 
-    public static final double kLeftP = 0.4; // these absoutly need to be tuned
+    public static final double kLeftP = 0.20501; // these absoutly need to be tuned
     public static final double kLeftI = 0;
     public static final double kLeftD = 0.01;
 
-    public static final double kRightP = 0.4; // these absoutly need to be tuned
+    public static final double kRightP = 0.20525; // these absoutly need to be tuned
     public static final double kRightI = 0;
     public static final double kRightD = 0.01;
 
@@ -61,12 +61,17 @@ public final class Constants {
       public static final double kVelocityFactor = kPositionFactor / 60.0;
     }
     public static final class SysIdConstants{
-      public static final boolean RunningSysIDTuning_TURN_THIS_OFF = true;
-      public static final double kVLinear = 0.1; // YOU NEED REAL VALUES HERE.
-      public static final double kALinear = 0.1; // Then go uncomment the m_feedForward varible in the 
-      public static final double kVAngular = 0.1; // Drive Sub as well as swap the driveRobotRelative 
-      public static final double kAAngular = 0.1; // with the one commented right below it
+      public static final boolean RunningSysIDTuning_TURN_THIS_OFF = false;
+
+      public static final double kVLeft = 2.0989; 
+      public static final double kALeft = 0.42824; 
+      public static final double kSLeft = 0.27422;
+
+      public static final double kVRight = 2.0679; 
+      public static final double kARight = 0.48395;
+      public static final double kSRight = 0.28743;
     }
+
   }
 
   public static final class FuelConstants {

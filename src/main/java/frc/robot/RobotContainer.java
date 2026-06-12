@@ -149,6 +149,7 @@ public class RobotContainer {
     //NamedCommands.registerCommand("Normal Jogger", new Jogger(fuelSubsystem));
     NamedCommands.registerCommand("Stop Fuel Subsystem", new StopFuelSystem(fuelSubsystem));
     NamedCommands.registerCommand("Pre-speed up flywheel", new SpinUpFlywheel(fuelSubsystem, () -> Constants.FuelConstants.LAUNCHING_LAUNCHER_RPM));
+    NamedCommands.registerCommand("Stop Drive", new Drive(driveSubsystem, driverController));
   }
 
   private void configureSysID(){
@@ -167,6 +168,9 @@ public class RobotContainer {
     driverController.y().whileTrue(
       driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
     );
+    driveSubsystem.setDefaultCommand(new Drive(driveSubsystem, driverController).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+
+    
   }
 
   /**

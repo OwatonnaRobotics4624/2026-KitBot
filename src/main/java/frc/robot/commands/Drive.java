@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import static frc.robot.Constants.DriveConstants.DEFAULT_ROBOT_SPEED;
 import static frc.robot.Constants.DriveConstants.SLOW_SPEED_SCALE;
 import static frc.robot.Constants.OperatorConstants.*;
 
@@ -26,12 +27,17 @@ public class Drive extends Command {
     addRequirements(driveSystem);
     driveSubsystem = driveSystem;
     controller = driverController;
+    SmartDashboard.putNumber("Slow speed scale", SLOW_SPEED_SCALE);
+    SmartDashboard.putNumber("Robot Speed", DEFAULT_ROBOT_SPEED);
+    SmartDashboard.setPersistent("Robot Speed");
+
+
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    SmartDashboard.putNumber("Slow speed scale", SLOW_SPEED_SCALE);
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -46,8 +52,8 @@ public class Drive extends Command {
     slowScaling = slowScaling*(scale) +(1-scale);
     //System.out.println(slowScaling);
     driveSubsystem.driveArcade(
-      applyDeadzone(-controller.getLeftY(), DriveConstants.DEADZONE) * DRIVE_SCALING * slowScaling,
-      applyDeadzone(-controller.getRightX(), DriveConstants.DEADZONE) * ROTATION_SCALING * slowScaling,
+      applyDeadzone(-controller.getLeftY(), DriveConstants.DEADZONE) * DRIVE_SCALING * slowScaling * SmartDashboard.getNumber("Robot Speed", 0.6),
+      applyDeadzone(controller.getRightX(), DriveConstants.DEADZONE) * ROTATION_SCALING * slowScaling * SmartDashboard.getNumber("Robot Speed", 0.6),
       () -> controller.y().getAsBoolean());
   }
 

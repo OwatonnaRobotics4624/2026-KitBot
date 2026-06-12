@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 
@@ -37,6 +38,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.DifferentialDriveFeedforward;
+import edu.wpi.first.math.controller.DifferentialDriveWheelVoltages;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
@@ -85,16 +87,19 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   /*uncomment once you actually have sysid values */
   
-  /* 
-  private DifferentialDriveFeedforward m_feedforward = new DifferentialDriveFeedforward(
-    SysIdConstants.kVLinear,
-    SysIdConstants.kALinear,
-    SysIdConstants.kVAngular,
-    SysIdConstants.kAAngular,
-    OdometryConstants.TRACK_WIDTH_METERS
-  );
-  */
+   
+  private final SimpleMotorFeedforward m_leftFeedforward =
+    new SimpleMotorFeedforward(
+        SysIdConstants.kSLeft,
+        SysIdConstants.kVLeft,
+        SysIdConstants.kALeft);
 
+private final SimpleMotorFeedforward m_rightFeedforward =
+    new SimpleMotorFeedforward(
+        SysIdConstants.kSRight,
+        SysIdConstants.kVRight,
+        SysIdConstants.kARight);
+  
   //private DifferentialDriveOdometry m_odometry;
 
   private DifferentialDriveKinematics m_kinematics;
@@ -250,7 +255,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             new SysIdRoutine.Config(
               Volts.per(Seconds).of(1),
               Volts.of(7),
-              Seconds.of(10)
+              Seconds.of(3)
             ),
 
             new SysIdRoutine.Mechanism(
@@ -477,7 +482,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   public void resetPose(Pose2d newPose){
     m_poseEstimator.resetPose(newPose);
-    m_gyro.setYaw(newPose.getRotation().getDegrees());
+    //m_gyro.setYaw(newPose.getRotation().getDegrees());
   }
 
   public void resetDriverCentricYaw(){
@@ -524,7 +529,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         : SmartDashboard.getNumber("Robot Speed", Constants.DriveConstants.DEFAULT_ROBOT_SPEED);
 
     speedMultiplier = MathUtil.clamp(speedMultiplier, 0.0, 1.0);
-    SmartDashboard.putNumber("Robot Speed", speedMultiplier);
 
     double leftOutput = xSpeed + zRotation;
     double rightOutput = xSpeed - zRotation;
@@ -539,7 +543,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightLeader.set(rightOutput * speedMultiplier);
   }
 
-
+  /* 
   private void driveRobotRelative(ChassisSpeeds speeds) {
 
     DifferentialDriveWheelSpeeds wheelSpeeds =
@@ -555,34 +559,32 @@ public class CANDriveSubsystem extends SubsystemBase {
         ControlType.kVelocity
     );
   }
+  */
 
-  /* 
+  
   private void driveRobotRelative(ChassisSpeeds speeds) {
 
     DifferentialDriveWheelSpeeds targetSpeeds =
         m_kinematics.toWheelSpeeds(speeds);
 
-    DifferentialDriveWheelVoltages ff = feedforward.calculate(
-        getWheelSpeeds(),
-        targetSpeeds
-    );
+    double leftFF =
+      m_leftFeedforward.calculate(targetSpeeds.leftMetersPerSecond);
 
-    leftController.setSetpoint(
+    double rightFF =
+      m_rightFeedforward.calculate(targetSpeeds.rightMetersPerSecond);
+
+    m_leftController.setSetpoint(
         targetSpeeds.leftMetersPerSecond,
         ControlType.kVelocity,
         ClosedLoopSlot.kSlot0,
-        ff.leftVoltage,
-        ArbFFUnits.kVoltage
-    );
+        leftFF);
 
-    rightController.setSetpoint(
+    m_rightController.setSetpoint(
         targetSpeeds.rightMetersPerSecond,
         ControlType.kVelocity,
         ClosedLoopSlot.kSlot0,
-        ff.rightVoltage,
-        ArbFFUnits.kVoltage
-    );
-  }*/
+        rightFF);
+  }
 
   public void setDriveIdleToBrake(){
     setAllDriveIdleMode(IdleMode.kBrake, PersistMode.kNoPersistParameters);
